@@ -7,7 +7,7 @@ import functools
 1. Functions to break down and re-assemble packets that need to be sent, into a more readable and editable format.
 2. Creation of a socket to the right ip and port. Sending the right information at initialisation.
     - PORT: 443
-    - IP: Changes between 3: (1) 208.85.93.114 (2) ? (3) ?
+    - IP: Changes between 3: (1) 208.85.93.114 (2) 208.85.93.164 (3) ?
     - Gaia info needed: gaia55_sid, gaia_id, username, avatar_url, roomid, xy coords (Needed for positioning in rally).
             * Room id and IP can be found by 'toggle ip' and xy coord can be found in 'debug' commands in rally
 3. Packets must be sent in a certain order to connect: FLASH VERSION. TIMESTAMP CONNECTION AND GAIA ID (Method 29)
