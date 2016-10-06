@@ -34,6 +34,8 @@ GAIA_USERNAME = 'USERNAME'
 GAIA_AVATAR_URL = 'AVATAR URL'
 ROOM_ID = 'ROOM ID' # Get this by typing 'toggle ip' in Rally
 
+clients = [] # This is for the input. 
+
 # If you want a different starting position, change COORDS. use 'debug' in rally to see Coords.
 class RallyClient(asyncio.Protocol):
     def __init__(self, gaia55_sid, gaia_id, username, avatar_url, roomid, xy=('360', '610')):
@@ -56,6 +58,8 @@ class RallyClient(asyncio.Protocol):
         self.transport.write(self.p_encode(['S55', 'FLASH', 1, 0, 2, 48])) # Encodes flash packet.
         self.log.debug('Sent: flash packet')
         asyncio.ensure_future(self.pingu()) # Starts the ping sending loop. (Not quite sure how this works)
+        
+        clients.append(self) # Appends instance to clients. Used for input
 
     def data_received(self, data):
         # Everytime data is received this is called.
@@ -66,10 +70,12 @@ class RallyClient(asyncio.Protocol):
         elif self.data[0][0] == '10': # If packet method is 10, indicates a chat message
             self.log.debug('Chat: {!r}'.format(self.data[0][4]))
         else:
-            self.log.debug('received: {!r}'.format(self.data)) # Prints to cmdline the data, is annoying at the moment. Feel free to remove.
+            None
+            # self.log.debug('received: {!r}'.format(self.data)) # Prints to cmdline the data, is annoying at the moment. Feel free to remove.
         # Below this line the rest of the packets for the initial connection handshake are sent. Some require the rally ssid
         # Which is why we check it has its value. All Debug messages are just for user clarification.
         if ssid:
+            self.ssid = ssid
             self.log.debug('SSID is: {!r}'.format(ssid))
             self.transport.write(self.p_encode(self.timestamp))
             self.log.debug('Sent time stamp.')
@@ -80,7 +86,12 @@ class RallyClient(asyncio.Protocol):
             self.log.debug('Sent method 20.')
             self.transport.write(self.p_encode([53, 'updatePos:' + self.xy2 + ':dirRight:faceFront:0:0:0:normal:3', ssid, 1, self.roomid]))
             self.log.debug('Sent user content.') # This packet makes your avatar appear in rally.
-
+    
+    def send_chat(self, text):
+        chat_pack = self.p_encode([10, self.ssid, 1, self.roomid, text])
+        self.transport.write(chat_pack)
+        log.debug('{!r} Sent: {!r}'.format(self.ssid, text))
+        
     def connection_lost(self, exc):
         print('server lost connection')
         print('stop the loop')
@@ -126,6 +137,12 @@ class RallyClient(asyncio.Protocol):
         self.transport.write(self.p_encode([62, '']))
         log.debug('Pong!')
         asyncio.ensure_future(self.pingu())
+        
+async def send_from_stdin(loop):
+    while True:
+        send_msg = await loop.run_in_executor(None, input, "Chat >")
+        for client in clients:
+            client.send_chat(send_msg)
 
 if __name__ == '__main__':
     
@@ -141,6 +158,7 @@ if __name__ == '__main__':
         event_loop.run_until_complete(factory_coro)
         # Loops until factory is done. Would shut down if client recieves no data
         # But run_forever() stops that
+        asyncio.ensure_future(send_from_stdin(event_loop))
         event_loop.run_forever()
     except KeyboardInterrupt:
         pass
