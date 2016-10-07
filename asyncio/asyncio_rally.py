@@ -96,8 +96,7 @@ class RallyClient(asyncio.Protocol):
         for ky, vl in enumerate(packet):
             if isinstance(vl, list):  # if value is a list
                 packet[ky] = '\x01'.join(vl)
-        data += '\x02'.join(packet) + '\x03'
-        data += '\x00'
+        data += '\x02'.join(packet) + '\x03\x00'
         return data.encode()
 
     def p_decode(self, packets):
