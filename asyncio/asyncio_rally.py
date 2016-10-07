@@ -46,7 +46,7 @@ class RallyClient(asyncio.Protocol):
         self.xy2 = ':'.join(xy)
         self.log = logging.getLogger('RallyClient')
         self.flashpack = ['S55', 'FLASH', 1, 0, 2, 48] # Sends flash version info (NOT EVEN USED)
-        self.timestamp = [29, 1, self.gaia_id, 3, str(time.time())[0:-8]] # Sends a timestamp to server
+        self.timestamp = [29, 1, self.gaia_id, 3, '-' + str(time.time())[0:-8]] # Sends a timestamp to server
         self.method45 = [45, 2, 1, 1, 1, '', self.gaia_id, 0, 0, 1, 'btn0', self.avatar_url, self.username, self.gaia_id, 0, 8, 0,
                    self.gaia55_sid, 0, 0] # joins the rally server, but not a room.
 
