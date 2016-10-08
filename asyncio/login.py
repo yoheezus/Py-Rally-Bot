@@ -14,12 +14,13 @@ class GaiaAuth():
             ftempvalue = re.search('value="([\.\a-z0-9]{25,32})"', finputs[i]).group(1) #Input value
             fpostdata += ftempname + ftempvalue #Finally compose it all
         fpostdata = {'username' : username, 'password' : password, }
-        rheaders = requests.post('http://www.gaiaonline.com/auth/login/', data = fpostdata).headers
+    '''   
+    rheaders = requests.post('http://www.gaiaonline.com/auth/login/', data = fpostdata).headers
         sid = re.search('gaia55_sid=([a-z0-9]{48})', rheaders['Set-Cookie'])
         if sid:
             print('SID: ' + rheaders['Set-Cookie']) #Our necessary post data.
         else:
             print('oh no!')
 
-
-GaiaAuth('potion%20seller','MustBe123') #Do nothing with this yet
+'''
+GaiaAuth('username','password') #Do nothing with this yet
