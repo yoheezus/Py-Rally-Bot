@@ -6,9 +6,9 @@ from login import GaiaAuth
 
 USERNAME = 'Yoheezus'
 PASSWORD = 'MyPass'
-SERVER_ADDRESS = ('208.85.93.114', 443)
-GAIA_ID = '36931745'
-GAIA_AVATAR_URL = 'ava/a1/88/32c19cd223388a1_M_6.00_11_1465590975'
+SERVER_ADDRESS = ('208.85.93.114', 443) # Not sure if if can be automated
+GAIA_ID = '36931745' # This can b be automated
+GAIA_AVATAR_URL = 'ava/a1/88/32c19cd223388a1_M_6.00_11_1465590975' # This can be automated
 ROOM_ID = '45002'
 
 auth = GaiaAuth(USERNAME, PASSWORD)
