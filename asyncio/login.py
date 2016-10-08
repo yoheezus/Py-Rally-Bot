@@ -3,7 +3,6 @@ import re
 
 class GaiaAuth():
     def __init__(self, username, password):
-        fpostdata = "'username': '" + username + "', 'password': '" + password + "'" #Start of out post data
         msource = requests.get('http://gaiaonline.com/').text.replace('data-value', '') #Send HTTP GET request to http://gaiaonline.com/
         ftempname = ''
         ftempvalue = ''
@@ -13,7 +12,8 @@ class GaiaAuth():
             #print(finputs[i])
             ftempname = re.search('name="([a-z0-9]{3,30})"', finputs[i]).group(1) #Input name
             ftempvalue = re.search('value="([\.\a-z0-9]{25,32})"', finputs[i]).group(1) #Input value
-            fpostdata += ", '" + ftempname + "': '" + ftempvalue + "'" #Finally compose it all
+            fpostdata += ftempname + ftempvalue #Finally compose it all
+        fpostdata = {'username' : username, 'password' : password, }
         rheaders = requests.post('http://www.gaiaonline.com/auth/login/', data = fpostdata).headers
         sid = re.search('gaia55_sid=([a-z0-9]{48})', rheaders['Set-Cookie'])
         if sid:
