@@ -12,7 +12,7 @@ class GaiaAuth():
         for i in range(3, len(finputs)): #loop from 3 to the length of our inputs from the regex, we don't need the first 3
             print(finputs[i])
             ftempname = re.search('name="([a-z0-9]{3,30})"', finputs[i]).group(1) #Input name
-            ftempvalue = re.search('value=\"([\.\a-z0-9]{25,32})\"', finputs[i]).group(1) #Input value
+            ftempvalue = re.search('value="([\.\a-z0-9]{25,32})"', finputs[i]).group(1) #Input value
             fpostdata += ",'" + ftempname + "':'" + ftempvalue + "'" #Finally compose it all
         #rheaders = requests.post('http://www.gaiaonline.com/auth/login/', data = {fpostdata}).headers
             
