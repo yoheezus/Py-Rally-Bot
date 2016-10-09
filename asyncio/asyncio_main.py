@@ -5,7 +5,7 @@ from asyncio_rally import RallyClient
 from login import GaiaAuth
 
 USERNAME = 'Yoheezus'
-PASSWORD = 'FuceCombHibl0['
+PASSWORD = 'MyPass'
 auth = GaiaAuth(USERNAME, PASSWORD)
 
 SERVER_ADDRESS = ('208.85.93.114', 443)
