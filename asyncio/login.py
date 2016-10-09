@@ -12,13 +12,27 @@ class GaiaAuth():
         
         for i in range(3, len(finputs)): #loop from 3 to the length of our inputs from the regex, we don't need the first 3
             #print(finputs[i])
-            ftempname = re.search('name="([a-z0-9]{3,30})"', finputs[i]).group(1) #Input name
-            ftempvalue = re.search('value="([\.\a-z0-9]{25,32})"', finputs[i]).group(1) #Input value
-            params[ftempname] = ftempvalue # adds form name and corresponding value to params dict 
+            try:    
+                ftempname = re.search('name="([a-z0-9]{3,30})"', finputs[i]).group(1)  # Input name    
+                ftempvalue = re.search('value="([\.\a-z0-9]{25,32})"', finputs[i]).group(1)  # Input value    
+                params[ftempname] = ftempvalue  # adds form name and corresponding value to params dict
+            except AttributeError:    
+                print('Try Again')    
+                break
         sess.post('http://www.gaiaonline.com/auth/login/', params).headers
         sid = sess.cookies.get_dict()
         sid = sid['gaia55_sid']
         
         print('SID:', sid)
         
-GaiaAuth('username','password') #Do nothing with this yet
+        def method107(self):    
+            resp = self.sess.get('http://gaiaonline.com/chat/gsi/?m=[[107,[%22{}%22]]]&v=json'.format(self.sid))    # Uses sid to make use of Gaia's API, enables us to automate other information.    
+            json = resp.json() # Loads the json, allows us to parse    
+            gaia_id = json[0][2]['gaia_id']    
+            avatar = json[0][2]['avatar']    
+            return gaia_id, avatar # Returns the info in this order. Remember to set vars in this order.
+
+if __name__ == '__main__':
+    auth = GaiaAuth('username','password') #Do nothing with this yet
+    auth.method107()
+    
