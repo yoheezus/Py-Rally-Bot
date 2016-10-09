@@ -7,21 +7,21 @@ class GaiaAuth():
         msource = requests.get('http://gaiaonline.com/').text.replace('data-value', '') #Send HTTP GET request to http://gaiaonline.com/
         ftempname = ''
         ftempvalue = ''
-        finputs = re.findall('<input([^>]+)>', msource) #regex for getting the inputs
+        finputs = re.findall('<input([^>]+)>', msource) #Regex for getting the inputs
         params = {'username' : username, 'password' : password}
         
-        for i in range(3, len(finputs)): #loop from 3 to the length of our inputs from the regex, we don't need the first 3
+        for i in range(3, len(finputs)): #Loop from 3 to the length of our inputs from the regex, we don't need the first 3
             #print(finputs[i])
             try:    
                 ftempname = re.search('name="([a-z0-9]{3,30})"', finputs[i]).group(1)  # Input name    
                 ftempvalue = re.search('value="([\.\a-z0-9]{25,32})"', finputs[i]).group(1)  # Input value    
-                params[ftempname] = ftempvalue  # adds form name and corresponding value to params dict
+                params[ftempname] = ftempvalue  # Adds form name and corresponding value to params dict
             except AttributeError:    
                 print('Try Again')    
                 break
-        sess.post('http://www.gaiaonline.com/auth/login/', params).headers
-        sid = sess.cookies.get_dict()
-        sid = sid['gaia55_sid']
+        sess.post('http://www.gaiaonline.com/auth/login/', params).headers #Send HTTP POST request with our necessary post data.
+        sid = sess.cookies.get_dict() #Obtain a dictionary
+        sid = sid['gaia55_sid'] #sid now has the session value
         
         print('SID:', sid)
         
