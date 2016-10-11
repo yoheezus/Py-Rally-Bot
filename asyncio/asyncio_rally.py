@@ -26,14 +26,15 @@ logging.basicConfig(
 log = logging.getLogger('main')
 event_loop = asyncio.get_event_loop()
 
+# Block below is only necessary if running this file directly, else look in asyncio_main.py
 SERVER_ADDRESS = ('208.85.93.114', 443)
-GAIA_SSID = 'sfcjrh9tgo2eaf3f80b8ab77faodzoax12g8178wy2pprabe'
-GAIA_ID = '36931745'
-GAIA_USERNAME = 'Yoheezus'
-GAIA_AVATAR_URL = 'ava/a1/88/32c19cd223388a1_M_6.00_11_1465590975'
-ROOM_ID = '45002'
+GAIA_SSID = 'GAIA_SSID'
+GAIA_ID = 'GAIA_ID'
+GAIA_USERNAME = 'GAIA_USERNAME'
+GAIA_AVATAR_URL = 'AVATAR_URL'
+ROOM_ID = 'ROOM ID'
 
-
+# Change xy coords to appear in a different place. Type debug in chat to find coords.
 class RallyClient(asyncio.Protocol):
     def __init__(self, gaia55_sid, gaia_id, username, avatar_url, roomid, xy=('393', '932')):
         self.gaia55_sid = gaia55_sid
@@ -59,11 +60,11 @@ class RallyClient(asyncio.Protocol):
     def data_received(self, data):
         ssid = ''
         self.data = self.p_decode(data.decode())
-        for packet in self.data:
+        for packet in self.data: # This foor loop allows us to go through each packet seperately. 
 
-            if packet[0] == '1':
+            if packet[0] == '1': # Packet 1 includes ssid, this retreives it.
                 ssid += packet[1]
-            elif packet[0] == '10':
+            elif packet[0] == '10': # Packet 10 represents chat msgs
                 self.log.debug('(Chat) {!r}: {!r}'.format(self.connected_users[packet[1]], packet[4]))
             elif packet[0] == '7':
                 self.log.debug('received: {!r}'.format(packet))
@@ -80,7 +81,7 @@ class RallyClient(asyncio.Protocol):
                 None
                 # self.log.debug('received: {!r}'.format(packet))
         if ssid:
-            self.ssid = ssid
+            self.ssid = ssid 
             self.log.debug('SSID is: {!r}'.format(ssid))
             self.transport.write(self.p_encode(self.timestamp))
             self.log.debug('Sent time stamp.')
@@ -91,7 +92,7 @@ class RallyClient(asyncio.Protocol):
             self.log.debug('Sent method 20.')
             self.transport.write(self.p_encode([53, 'updatePos:' + self.xy2 + ':dirRight:faceFront:0:0:0:normal:3', ssid, 1, self.roomid]))
             self.log.debug('Sent user content.')
-            self.connected_users[ssid] = self.username
+            self.connected_users[ssid] = self.username  # Adds The bot user account to connected users list.
 
     def connection_lost(self, exc):
         print('server lost connection')
@@ -139,7 +140,7 @@ class RallyClient(asyncio.Protocol):
         log.debug('Pong!')
         asyncio.ensure_future(self.pingu())
 
-    def add_to_userlist(self, me6):
+    def add_to_userlist(self, me6): # This function deals with users joining / leaving room.
         if me6[0] == '6': #Adds user to dict when joining rally room.
             for x in me6:
                 try:
@@ -147,17 +148,18 @@ class RallyClient(asyncio.Protocol):
                 except IndexError:
                     print('ERROR: ', me6)
                     continue
-        if me6[0] == '21' and me6[2] == self.roomid:
+        if me6[0] == '21' and me6[2] == self.roomid: # And statement checks if it's same room.
             try:
                 self.connected_users[me6[1]] = me6[9]
                 self.transport.write(self.p_encode(
-                    [53, 'updatePos:' + self.xy2 + ':dirRight:faceFront:0:0:0:normal:3', self.ssid, 1, self.roomid]))
-                self.log.debug('User {!r} joined room.'.format(self.connected_users[me6[1]]))
+                    [53, 'updatePos:' + self.xy2 + ':dirRight:faceFront:0:0:0:normal:3', self.ssid, 1, self.roomid])) # So Avatar
+                # appears to new users who join the room
+                self.log.debug('User {!r} joined room.'.format(self.connected_users[me6[1]])) 
 
             except IndexError:
                 print('ERROR: ', me6)
 
-        if me6[0] == '11' and me6[3] == self.roomid:
+        if me6[0] == '11' and me6[3] == self.roomid: # And statement checks if its same room.
             try:
                 self.log.debug('User {!r} left the room.'.format(self.connected_users[me6[1]]))
                 del self.connected_users[me6[1]]
