@@ -76,14 +76,8 @@ class RallyClient(asyncio.Protocol):
                 self.add_to_userlist(packet)
                 self.log.debug('Added User!')
             elif packet[0] == '21': # Checks User joining server/room packet
-                if packet[2] == roomid:
                     self.add_to_userlist(packet)
-                    self.log.debug('User {!r} joined room.'.format(self.connected_users[packet[1]]))
-                elif packet[3] == roomid:
-                    self.add_to_userlist(packet)
-                    self.log.debug('User {!r} went to a different room.'.format(self.connected_users[packet[1]]))
             elif packet[0] == '11': # Checks users leaving room/server
-                # self.log.debug('User {!r} left the room.'.format(self.connected_users[packet[1]]))
                 self.add_to_userlist(packet)  # This function has a delete option too.
             else:
                 None
@@ -163,9 +157,14 @@ class RallyClient(asyncio.Protocol):
                     [53, 'updatePos:' + self.xy2 + ':dirRight:faceFront:0:0:0:normal:3', self.ssid, 1, self.roomid])) # So Avatar
                 # appears to new users who join the room
                 self.log.debug('User {!r} joined room.'.format(self.connected_users[me6[1]])) 
-
             except IndexError:
                 print('ERROR: ', me6)
+        elif me6[0] == '21' and me6[3] == self.roomid:
+            try:
+                self.log.debug('User {!r} went to a different room.'.format(self.connected_users[me6[1]]))
+                del self.connected_users[me6[1]]
+            except KeyError:
+                print('Something went wrong.')        
 
         if me6[0] == '11' and me6[3] == self.roomid: # And statement checks if its same room.
             try:
