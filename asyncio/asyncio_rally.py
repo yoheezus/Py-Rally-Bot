@@ -64,16 +64,24 @@ class RallyClient(asyncio.Protocol):
 
             if packet[0] == '1': # Packet 1 includes ssid, this retreives it.
                 ssid += packet[1]
-            elif packet[0] == '10': # Packet 10 represents chat msgs
-                self.log.debug('(Chat) {!r}: {!r}'.format(self.connected_users[packet[1]], packet[4]))
+            elif packet[0] == '10':
+                cmsg = packet[4]
+                self.log.debug('(Chat) {!r}: {!r}'.format(self.connected_users[packet[1]], cmsg))
+                #chat commands here
+                #if cmsg == 'print':
+                    #do something
             elif packet[0] == '7':
                 self.log.debug('received: {!r}'.format(packet))
             elif packet[0] == '6': # Checks users already in room when joining
                 self.add_to_userlist(packet)
                 self.log.debug('Added User!')
             elif packet[0] == '21': # Checks User joining server/room packet
-                self.add_to_userlist(packet)
-                # self.log.debug('User {!r} joined room.'.format(self.connected_users[packet[1]]))
+                if packet[2] == roomid:
+                    self.add_to_userlist(packet)
+                    self.log.debug('User {!r} joined room.'.format(self.connected_users[packet[1]]))
+                elif packet[3] == roomid:
+                    self.add_to_userlist(packet)
+                    self.log.debug('User {!r} went to a different room.'.format(self.connected_users[packet[1]]))
             elif packet[0] == '11': # Checks users leaving room/server
                 # self.log.debug('User {!r} left the room.'.format(self.connected_users[packet[1]]))
                 self.add_to_userlist(packet)  # This function has a delete option too.
