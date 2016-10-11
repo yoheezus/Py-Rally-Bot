@@ -18,7 +18,6 @@ GAIA ID CAN BE FOUND IN PROFILE LINK
 ALL INFO CAN BE GOTTEN FROM http://gaiaonline.com/chat/gsi/index.php?v=json&m=[[102,[GAIA ID GOES HERE]]]
 """
 
-
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(name)s: %(message)s',
@@ -27,16 +26,16 @@ logging.basicConfig(
 log = logging.getLogger('main')
 event_loop = asyncio.get_event_loop()
 
-SERVER_ADDRESS = ('IP_ADDR', 443)
-GAIA_SSID = 'GAIA SSID'
-GAIA_ID = 'GAIA USER ID'
-GAIA_USERNAME = 'USERNAME'
-GAIA_AVATAR_URL = 'AVATAR URL'
-ROOM_ID = 'ROOM ID' # Get this by typing 'toggle ip' in Rally
+SERVER_ADDRESS = ('208.85.93.114', 443)
+GAIA_SSID = 'sfcjrh9tgo2eaf3f80b8ab77faodzoax12g8178wy2pprabe'
+GAIA_ID = '36931745'
+GAIA_USERNAME = 'Yoheezus'
+GAIA_AVATAR_URL = 'ava/a1/88/32c19cd223388a1_M_6.00_11_1465590975'
+ROOM_ID = '45002'
 
-# If you want a different starting position, change COORDS. use 'debug' in rally to see Coords.
+
 class RallyClient(asyncio.Protocol):
-    def __init__(self, gaia55_sid, gaia_id, username, avatar_url, roomid, xy=('360', '610')):
+    def __init__(self, gaia55_sid, gaia_id, username, avatar_url, roomid, xy=('393', '932')):
         self.gaia55_sid = gaia55_sid
         self.gaia_id = gaia_id
         self.username = username
@@ -45,41 +44,54 @@ class RallyClient(asyncio.Protocol):
         self.xy1 = xy
         self.xy2 = ':'.join(xy)
         self.log = logging.getLogger('RallyClient')
-        self.flashpack = ['S55', 'FLASH', 1, 0, 2, 48] # Sends flash version info (NOT EVEN USED)
-        self.timestamp = [29, 1, self.gaia_id, 3, '-' + str(time.time())[0:-8]] # Sends a timestamp to server
+        self.flashpack = ['S55', 'FLASH', 1, 0, 2, 48]
+        self.timestamp = [29, 1, self.gaia_id, 3, '-' + str(time.time())[0:-8]]
         self.method45 = [45, 2, 1, 1, 1, '', self.gaia_id, 0, 0, 1, 'btn0', self.avatar_url, self.username, self.gaia_id, 0, 8, 0,
-                   self.gaia55_sid, 0, 0] # joins the rally server, but not a room.
+                   self.gaia55_sid, 0, 0]
+        self.connected_users = {}
 
     def connection_made(self, transport):
-        # Connection made triggers once, when connection is established after event_loop.create_connection
         self.transport = transport
-        self.transport.write(self.p_encode(['S55', 'FLASH', 1, 0, 2, 48])) # Encodes flash packet.
+        self.transport.write(self.p_encode(['S55', 'FLASH', 1, 0, 2, 48]))
         self.log.debug('Sent: flash packet')
-        asyncio.ensure_future(self.pingu()) # Starts the ping sending loop. (Not quite sure how this works)
+        asyncio.ensure_future(self.pingu())
 
     def data_received(self, data):
-        # Everytime data is received this is called.
-        ssid = '' # SSID named here for the check
-        self.data = self.p_decode(data.decode()) # Decode the data from bytes into a list. easier to read / format
-        if self.data[0][0] == '1': # First packet will be holding the ssid, it's method 1, so this checks for 1 as the first item.
-            ssid += self.data[0][1] # Sets your gaia rally session id, different to your GAIA_SSID
-        elif self.data[0][0] == '10': # If packet method is 10, indicates a chat message
-            self.log.debug('Chat: {!r}'.format(self.data[0][4]))
-        else:
-            self.log.debug('received: {!r}'.format(self.data)) # Prints to cmdline the data, is annoying at the moment. Feel free to remove.
-        # Below this line the rest of the packets for the initial connection handshake are sent. Some require the rally ssid
-        # Which is why we check it has its value. All Debug messages are just for user clarification.
+        ssid = ''
+        self.data = self.p_decode(data.decode())
+        for packet in self.data:
+
+            if packet[0] == '1':
+                ssid += packet[1]
+            elif packet[0] == '10':
+                self.log.debug('(Chat) {!r}: {!r}'.format(self.connected_users[packet[1]], packet[4]))
+            elif packet[0] == '7':
+                self.log.debug('received: {!r}'.format(packet))
+            elif packet[0] == '6': # Checks users already in room when joining
+                self.add_to_userlist(packet)
+                self.log.debug('Added User!')
+            elif packet[0] == '21': # Checks User joining server/room packet
+                self.add_to_userlist(packet)
+                # self.log.debug('User {!r} joined room.'.format(self.connected_users[packet[1]]))
+            elif packet[0] == '11': # Checks users leaving room/server
+                # self.log.debug('User {!r} left the room.'.format(self.connected_users[packet[1]]))
+                self.add_to_userlist(packet)  # This function has a delete option too.
+            else:
+                None
+                # self.log.debug('received: {!r}'.format(packet))
         if ssid:
+            self.ssid = ssid
             self.log.debug('SSID is: {!r}'.format(ssid))
             self.transport.write(self.p_encode(self.timestamp))
             self.log.debug('Sent time stamp.')
             self.transport.write(self.p_encode(self.method45))
             self.log.debug('Sent method 45')
             self.transport.write(self.p_encode([20, 3, ssid, self.roomid, '', self.xy1, 'left:front:0:0:3', 1, 'btn0', self.avatar_url, self.username, self.gaia_id,
-             '', 8, 0, 0, 0])) # Connects to the room within rally server.
+                 '', 8, 0, 0, 0]))
             self.log.debug('Sent method 20.')
             self.transport.write(self.p_encode([53, 'updatePos:' + self.xy2 + ':dirRight:faceFront:0:0:0:normal:3', ssid, 1, self.roomid]))
-            self.log.debug('Sent user content.') # This packet makes your avatar appear in rally.
+            self.log.debug('Sent user content.')
+            self.connected_users[ssid] = self.username
 
     def connection_lost(self, exc):
         print('server lost connection')
@@ -89,7 +101,6 @@ class RallyClient(asyncio.Protocol):
         '''
             Encodes a list made up of the packet requirements into a real 'packet', to be sent,
              that will be accepted by server. By joining each element in list with appropriate control character usng .join.
-             EG. ['S55', 'FLASH', 1, 0, 2, 48] into b'S55\x02FLASH\x021\x020\x022\x0248\x03\x00'
             '''
         data = ''
         packet = [str(x) for x in packets]  # turns all non str into str
@@ -103,7 +114,6 @@ class RallyClient(asyncio.Protocol):
         '''
         Decodes a packet into a list, making it easy to edit. Does this by splitting
         by control characters.
-        EG. b'S55\x02FLASH\x021\x020\x022\x0248\x03\x00' into ['S55', 'FLASH', 1, 0, 2, 48]
         '''
         data = []
         transmission = packets.split('\x00')
@@ -119,23 +129,52 @@ class RallyClient(asyncio.Protocol):
                     data.append(thing)
         return data
 
-    async def pingu(self): # Sends a ping packet to keep connection to rally alive.
+    async def pingu(self):
+        """
+        Sends a ping packet to severs every 40 seconds. Stops disconnection.
+        """
         await asyncio.sleep(40)
         log = logging.getLogger('Ping!')
         self.transport.write(self.p_encode([62, '']))
         log.debug('Pong!')
         asyncio.ensure_future(self.pingu())
 
+    def add_to_userlist(self, me6):
+        if me6[0] == '6': #Adds user to dict when joining rally room.
+            for x in me6:
+                try:
+                    self.connected_users[me6[1]] = me6[7]
+                except IndexError:
+                    print('ERROR: ', me6)
+                    continue
+        if me6[0] == '21' and me6[2] == self.roomid:
+            try:
+                self.connected_users[me6[1]] = me6[9]
+                self.transport.write(self.p_encode(
+                    [53, 'updatePos:' + self.xy2 + ':dirRight:faceFront:0:0:0:normal:3', self.ssid, 1, self.roomid]))
+                self.log.debug('User {!r} joined room.'.format(self.connected_users[me6[1]]))
+
+            except IndexError:
+                print('ERROR: ', me6)
+
+        if me6[0] == '11' and me6[3] == self.roomid:
+            try:
+                self.log.debug('User {!r} left the room.'.format(self.connected_users[me6[1]]))
+                del self.connected_users[me6[1]]
+            except KeyError:
+                print('Something went wrong')
+
+
+
 if __name__ == '__main__':
-    
+
     client_factory = functools.partial(RallyClient, GAIA_SSID, GAIA_ID, GAIA_USERNAME,
-                      GAIA_AVATAR_URL, ROOM_ID)
+                  GAIA_AVATAR_URL, ROOM_ID)
     # client_factory instantiates the RallyClient class. Due to use of Protocol style asyncio,
     # functools.partial must be used to pass arguments
-    # Connects the instance to Event loop and the server socket. (Like sock.connect())
-        factory_coro = event_loop.create_connection(client_factory, *SERVER_ADDRESS)
-    # Connects the instance to Event loop and the server socket. (Like sock.connect())
 
+    factory_coro = event_loop.create_connection(client_factory, *SERVER_ADDRESS)
+    # Connects the instance to Event loop and the server socket. (Like sock.connect())
     try:
         event_loop.run_until_complete(factory_coro)
         # Loops until factory is done. Would shut down if client recieves no data
