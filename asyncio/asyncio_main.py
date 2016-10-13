@@ -4,12 +4,12 @@ import functools
 from asyncio_rally import RallyClient
 from login import GaiaAuth
 
-USERNAME = 'Yoheezus'
-PASSWORD = 'MyPass'
+USERNAME = 'YFPP01'
+PASSWORD = 'Qwerty12345!'
 auth = GaiaAuth(USERNAME, PASSWORD)
 
 SERVER_ADDRESS = ('208.85.93.114', 443)
-ROOM_ID = '45002'
+ROOM_ID = '47035'
 
 GAIA_SSID = auth.sid
 GAIA_ID, GAIA_AVATAR_URL = auth.method107()
