@@ -30,7 +30,8 @@ The login script was created by Ryan completely, as a means to automate the inse
 class GaiaAuth():
     def __init__(self, username, password):
         self.sess = requests.Session()
-        msource = requests.get('http://www.gaiaonline.com/').text.replace('data-value', '')```
+        msource = requests.get('http://www.gaiaonline.com/').text.replace('data-value', '')
+```
 
 The creation of the class takes `username` and `password` as parameters. self.sess creates a `Requests` session. `msource` contains the data of a get request from `http://www.gaiaonline.com`, the `text.replace()` replaces all "data-values" with empty strings.
 
@@ -54,7 +55,8 @@ The next block deals with the searching and filling of login fields.
              params[ftempname] = ftempvalue  # adds form name and corresponding value to params dict
          except AttributeError:
              print('Try Again, Exiting.')
-             sys.exit(0)```
+             sys.exit(0)
+```
 
 This chunk of code goes through each of the inputs stored in `finputs` but starts from index 3 as the first 3 inputs that will be stored are not necessary to login. In the `try` loop, more regex is performed, assigned the found "names" and "values" into `ftempname` and `ftempvalue`. These are the inputs names and the inputs values. Before looping, the values are added into the dictionary with `ftempname` as the key, and `ftempvalue` as the value in to the params dictionary.
 
@@ -63,14 +65,16 @@ If the code fails, usually due to page not loading correctly, the code will quit
 ```python
     self.sess.post('http://www.gaiaonline.com/auth/login/', params).headers
     sid = self.sess.cookies.get_dict()
-    self.sid = sid['gaia55_sid']```
+    self.sid = sid['gaia55_sid']
+```
 
 The first line posts the data to the Gaia Online login page, calling only the headers for a faster response. The second line stores the cookies in a dictionary  which were created by logging in. The third line  assigns the specific cookie to `self.sid`
 
 `gaia55_sid` is a cookie that Gaia Online uses to keep a session going. While the cookie is active, it means that you're logged in to the website and can access areas of the site that requires an account.
 
 ```python
-print('SID:', self.sid)```
+print('SID:', self.sid)
+```
 simply prints the sesion id (sid).
 
 The next part of the class deals with retrieving the information necessary to pass into the rally client.
@@ -103,7 +107,8 @@ import logging
 import sys
 import time
 import functools
-import re```
+import re
+```
 
 These are the necessary module that have to be imported. `asyncio` is required for the connection and the concurrency. It may not be required. `logging` is just for better visibility and was taken from the `asyncio` documentation.  `sys` is used for exits, and `time` is used for one packet which requires a timestamp. `functools` is used for applying arguments when creating the connection and `re` to parse the chat arguments, which will be shown.
 
@@ -114,7 +119,8 @@ logging.basicConfig(
     stream=sys.stderr
 )
 log = logging.getLogger('main')
-event_loop = asyncio.get_event_loop()```
+event_loop = asyncio.get_event_loop()
+```
 
 Everything up until the last line just sets up logging for the client. However the last line starts the event loop from `asyncio`. An event loop reacts once an "event" has been triggered, e.g data being recieved.
 
@@ -139,11 +145,13 @@ def p_decode(self, packets):
                           thing[ky] = vl.split('\x01')
 
                   data.append(thing)
-      return data```
+      return data
+```
 
 the function `p_decode` takes the data that is received as bytes, and turns it into a list. it takes a packet as an argument before splitting it by control characters.
 
 ```python
 data = []
-transmission = packets.split('\x00')```
+transmission = packets.split('\x00')
+```
 The function begins by creating and empty list and then splitting the current bytes into a list by trimming off the null byte, which Gaia uses to signal the true end of a packet.
