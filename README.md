@@ -7,22 +7,22 @@
   3. [Rally client](#client)
   4. [main.py](#main)
 
-<a name="planned-features"/>
-### 0. Planned Features
-Fix the method 6 problem
-Merge version 1.0 and version 2.0
-Add a whitelist & ban list
-Text-based User interface (TUI)
-Control from Discord (maybe)
-Finish README
 
-<a name="purpose"/>
+### 0. Planned Features
+ - Fix the method 6 problem
+ - Merge version 1.0 and version 2.0
+ - Add a whitelist & ban list
+ - Text-based User interface (TUI)
+ - Control from Discord (maybe)
+ - Finish README
+
+
 ### 1. Purpose
 The point of this readme is to act as a self-reference and document as to what the source code for the bot does. If anybody else see's this then it should explain what the code does.
 
 The readme will be broken down into several chunks going through each necessary script for the end product and also features that are being planned.
 
-<a name="login"/>
+
 ### 2. Login Script
 The login script was created by Ryan completely, as a means to automate the insertion of the `gaia55_sid` before running the client script. The script makes use of the `Requests` library and `re`. The script comprises a `GaiaAuth` class which handles and processes the data needed to be inputted and returned.
 
@@ -95,7 +95,7 @@ The first line uses the session, with the session id cookie, to retrieve data fr
 
 As the url includes `&v=json`, it results in the data being in json. Using `Requests` built in `json` function, it allows is to decode the data into python dictionaries, which we access and then return.
 
-<a name="client" />
+
 ### 3. Rally Client
 
 The client aspects handles all the packets that are sent, and need to be sent to the Gaia servers. This section will be broken down into the different functions in the order of that I find most important.
