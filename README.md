@@ -1,20 +1,20 @@
 # [**Python**] Gaia Online Rally Bot
 ---
 ##### Contents
-  0. [Planned Features](#planned features)
+  0. [Planned Features](#planned-features)
   1. [Purpose](#purpose)
   2. [Login](#login)
   3. [Rally client](#client)
   4. [main.py](#main)
 
-<a name="planned features"/>
-### **Planned Features**
-  -  [ ] Fix the method 6 problem
-  -  [ ] Merge version 1.0 and version 2.0
-  -  [ ] Add a whitelist & ban list
-  -  [ ] Text-based User interface (TUI)
-  -  [ ] Control from Discord (maybe)
-  -  [ ] Finish README
+<a name="planned-features"/>
+### 0. Planned Features
+Fix the method 6 problem
+Merge version 1.0 and version 2.0
+Add a whitelist & ban list
+Text-based User interface (TUI)
+Control from Discord (maybe)
+Finish README
 
 <a name="purpose"/>
 ### 1. Purpose
